@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsfonts} 
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage[export]{adjustbox}[2011/08/13]
+\usepackage{amsmath}
+\usepackage{sectsty}
+\sectionfont{\centering}
+\makeatletter
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{#1}}
+\makeatother
+
+\title{Теория кодирования. \\ Конспект практических занятий}
+\author{Ерофей Башунов}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+\section*{3 сентября 2021}
+
+\subsection*{Линейные коды}
+
+Допустим, у нас есть некоторое векторное $n$-мерное пространство $\mathbb{F}^n_q$, где $q$ --- количество элементов. Выберем подпространство размерности $k$ ($n > k$), это и будет являться линейным кодом размерности $n$ и ранга $k$. Параметр $q$ отвечает за арность кода (при $q = 2$ код является бинарным).
+
+Отображение из $k$ бит в $n$ бит --- добавление избыточной информации к векторам из подпространства. Это отображение необходимо для того, чтобы повысить устойчивость передачи информации к помехам путём добавления дополнительных ($n - k)$ <<проверяющих>> битов. Формально, оно записывается в виде $\mathbb{F}^k_q \rightarrow \mathbb{F}^n_q$.
+
+Рассмотрим два вектора таких, что $a \in \mathbb{F}^k_q $ и $c \in \mathbb{F}^n_q$. Тогда преобразование можно рассматривать как умножение вектора на матрицу, а именно:
+
+$$c = a \cdot \underset{k \times n}{G}$$
+
+Матрица $G$ называется порождающей матрицей.
+
+\subsection*{Проверочная матрица}
+
+Проверочная матрица $H^T$ --- способ определить, является ли слово кодовым или нет. Необходимое и достаточное условие: $c \cdot H^T = 0$. Матрица находится с помощью уравнения:
+
+$$\underset{k \times n}{G} \cdot \underset{n \times (n - k)}{H^T} = 0$$
+
+Чтобы найти матрицу $H^T$, необходимо выполнить следующий алгоритм:
+\begin{enumerate}
+    \item Путём линейных преобразований, приводим матрицу $G$ к такому виду, чтобы в левой её части получилась единичная матрица. В процессе преобразований возможна перестановка столбцов (назовём матрицу перестановки $P$). Получится некоторая матрица $G' = G \cdot P$.
+    \item Найдём матрицу $H'$ такую, что $G' \cdot H'^T = 0$. Пользуясь тем, что $G' = [I_k | S]$, получаем, что $H' = [-S^T | I_k]$
+    \item Так как $(G \cdot P) \cdot (P^{-1} \cdot H^T) = G \cdot H^T = 0$ и $(G \cdot P) \cdot H'^T = G'^T \cdot H'^T = 0$, то верно равенство $H'^T = P^{-1} \cdot H^T$, следовательно $H = H' \cdot P$.
+\end{enumerate}
+
+\subsubsection*{Пример}
+
+Допустим, у нас есть матрица $G$ вида
+
+\begin{equation*}
+\begin{pmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 \\
+1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+\end{pmatrix}
+\end{equation*}
+
+Путём линейных образований и перестановки 4 и 5 столбцов получаем матрицу $G'$:
+
+\begin{equation*}
+\begin{pmatrix}
+1 & 0 & 0 & 0 & 1 & 1 & 1 & 0 \\
+0 & 1 & 0 & 0 & 1 & 1 & 0 & 1 \\
+0 & 0 & 1 & 0 & 1 & 0 & 1 & 1 \\
+0 & 0 & 0 & 1 & 0 & 1 & 1 & 1 \\
+\end{pmatrix}
+\end{equation*}
+
+Отсюда находим матрицу $H'$ как
+
+\begin{equation*}
+\begin{pmatrix}
+0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 1 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+\end{pmatrix}
+\end{equation*}
+
+А матрица $H$ будет иметь вид:
+
+\begin{equation*}
+\begin{pmatrix}
+1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 \\
+1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
+\end{pmatrix}
+\end{equation*}
+
+\subsection*{Логарифмическое отношение правдоподобия}
+
+$$p(x) \cdot p(y | x) = p(x ^ y) = p(x | y) \cdot p(y)$$
+$$p(x | y) = \frac{p(x) \cdot p(y | x)}{p(y)}$$
+
+Выведем формулу логарифмического отношения правдоподобия. Помним, что $p(y | x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \cdot \exp{-\frac{(y - x)^2}{2\sigma^2}}$
+
+\begin{equation*}
+\begin{gathered}
+L = \log\frac{P(c_i = 0 | y_i)}{P(c_i = 1 | y_i)} = \log{\frac{\frac{1}{2} \cdot \frac{1}{\sqrt{2 \pi \sigma^2}} \cdot \exp{-\frac{(y_i + 1)^2}{2\sigma^2}}}{p(y_i)} \cdot \frac{p(y_i)}{\frac{1}{2} \cdot \frac{1}{\sqrt{2 \pi \sigma^2}} \cdot \exp{-\frac{(y_i - 1)^2}{2\sigma^2}}}} =\\= \log{\exp{\frac{(y_i - 1)^2 - (y_i + 1)^2}{2\sigma^2}}} = \frac{(y_i - 1)^2 - (y_i + 1)^2}{2\sigma^2} = -\frac{4 y_i}{2\sigma^2} = -\frac{2y_i}{\sigma^2}
+\end{gathered}
+\end{equation*}
+
+\end{document}
